@@ -1,7 +1,7 @@
-<div class="border border-primary rounded-5 p-3 text-center fs-3 mb-3">
-    Pergunta: <span class="text-info fw-bolder">{{ $currentQuestion + 1 }} / {{ $totalQuestions }}</span>
-</div>
-
-<div class="text-center fs-3 mb-3">
-    Qual é a capital de {{ $country }}?
+<div class="card border-0 shadow-sm p-3 mb-4">
+    <div class="card-body text-center">
+        <p class="h6 text-light mb-2">Pergunta <span class="text-light fw-bold">{{ $currentQuestion + 1 }} /
+                {{ $totalQuestions }}</span></p>
+        <p class="h3 fw-bold mb-0">Qual é a capital de {{ $country }}?</p>
+    </div>
 </div>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Http\RedirectResponse;
 
 class MainController extends Controller
 {
@@ -14,8 +16,12 @@ class MainController extends Controller
         $this->appData = require(app_path("app_data.php"));
     }
 
-    public function startGame(): View
+    public function startGame(): View|RedirectResponse
     {
+        $token = session('_token');
+        session()->flush();
+        session(['_token' => $token]);
+
         return view('home');
     }
 
@@ -46,7 +52,8 @@ class MainController extends Controller
             'total_questions' => $totalQuestions,
             'current_question' => 1,
             'correct_answers' => 0,
-            'wrong_answers' => 0
+            'wrong_answers' => 0,
+            'end_game' => false
         ]);
 
         return redirect()->route('game');
@@ -89,8 +96,16 @@ class MainController extends Controller
         return $questions;
     }
 
-    public function game(): View
+    public function game(): View|RedirectResponse
     {
+        if (!session()->has('quiz')) {
+            return redirect()->route('start_game');
+        }
+
+        if (session('end_game') == true) {
+            return redirect()->route('show_results');
+        }
+
         $quiz = session('quiz');
         $totalQuestions = session('total_questions');
         $currentQuestion = session('current_question') - 1;
@@ -105,6 +120,94 @@ class MainController extends Controller
             'totalQuestions' => $totalQuestions,
             'currentQuestion' => $currentQuestion,
             'answers' => $answers
+        ]);
+    }
+
+    public function answer($encAnswer)
+    {
+        if (!session()->has('quiz')) {
+            return redirect()->route('start_game');
+        }
+
+        try {
+            $answer = Crypt::decryptString($encAnswer);
+        } catch (\Exception $e) {
+            return redirect()->route('game');
+        }
+
+        // game logic
+        $quiz = session('quiz');
+        $currentQuestion = session('current_question') - 1;
+        $correctAnswer = $quiz[$currentQuestion]['correct_answer'];
+        $correctAnswers = session('correct_answers');
+        $wrongAnswers = session('wrong_answers');
+
+        if ($answer == $correctAnswer) {
+            $correctAnswers++;
+            $quiz[$currentQuestion]['correct'] = true;
+        } else {
+            $wrongAnswers++;
+            $quiz[$currentQuestion]['correct'] = false;
+        }
+
+        // update session
+        session()->put([
+            'quiz' => $quiz,
+            'correct_answers' => $correctAnswers,
+            'wrong_answers' => $wrongAnswers
+        ]);
+
+        // prepare data to show correct answer
+        $data = [
+            'country' => $quiz[$currentQuestion]['country'],
+            'correctAnswer' => $correctAnswer,
+            'choiceAnswer' => $answer,
+            'currentQuestion' => $currentQuestion,
+            'totalQuestions' => session('total_questions')
+        ];
+
+        return view('answer_result')->with($data);
+    }
+
+    public function nextQuestion()
+    {
+        if (!session()->has('quiz')) {
+            return redirect()->route('start_game');
+        }
+
+        $currentQuestion = session('current_question');
+        $totalQuestions = session('total_questions');
+
+        // check if the game is over
+        if ($currentQuestion < $totalQuestions) {
+            $currentQuestion++;
+            session()->put('current_question', $currentQuestion);
+            return redirect()->route('game');
+        } else {
+            session()->put('end_game', true);
+            return redirect()->route('show_results');
+        }
+    }
+
+    public function showResults(): View|RedirectResponse
+    {
+        if (!session()->has('quiz')) {
+            return redirect()->route('start_game');
+        }
+
+        if (session('end_game') == false) {
+            return redirect()->route('game');
+        }
+
+        $totalQuestions = session('total_questions');
+        $correctAnswers = session('correct_answers');
+        $wrongAnswers = session('wrong_answers');
+
+        return view('show_results')->with([
+            'totalQuestions' => $totalQuestions,
+            'correctAnswers' => $correctAnswers,
+            'wrongAnswers' => $wrongAnswers,
+            'scoreFinal' => round($correctAnswers / $totalQuestions * 100, 2)
         ]);
     }
 }

@@ -1,21 +1,43 @@
 /* main css */
 body {
-    background-color: #111111;
-    color: white;
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
 }
 
+/* Estilo para a opção de resposta, usando uma abordagem de "cartão" */
 .response-option {
-    background-color: #242424;
-    font-size: 1.5em;
-    color: white;
-    border: 1px solid lightblue;
-    border-radius: 50px;
-    padding: 10px;
-    margin: 10px;
+    background-color: #161b22;
+    font-size: 1.25rem;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
 
-.response-option:hover {
-    background-color: #1c444e;
-    box-shadow: 0px 0px 10px 0px lightblue;
+/* Efeito de hover e foco para a opção de resposta */
+.response-option:hover,
+.response-option:focus {
+    background-color: #21262d;
+    border-color: #58a6ff;
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #58a6ff;
+}
+
+/* Estilo para o link de cancelamento, para se adequar ao tema escuro */
+.btn-outline-danger {
+    border-color: #f85149;
+    color: #f85149;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-danger:hover {
+    background-color: #f85149;
+    color: white;
+    box-shadow: 0 4px 10px rgba(248, 81, 73, 0.3);
 }

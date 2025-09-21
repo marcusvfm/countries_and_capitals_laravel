@@ -14,7 +14,7 @@
                         @enderror
                     </div>
                     <div class="text-center">
-                        <button class="btn btn-primary px-5" type="submit">INICIAR QUESTIONÁRIO</button>
+                        <button class="btn btn-outline-primary mt-3 px-5" type="submit">INICIAR QUESTIONÁRIO</button>
                     </div>
                 </form>
             </div>
